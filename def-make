@@ -1,0 +1,19 @@
+FILES:=$(shell find -name "*.c")
+OPTS:=-lm
+BIN_PATH:=./bin
+OUT_NAME:=program
+PROY_PATH:=$(shell proy conf get project_path)
+
+compile: $(FILES)
+	gcc -o $(BIN_PATH)/$(OUT_NAME) $(OPTS) $(FILES)
+
+run: compile
+	$(BIN_PATH)/$(OUT_NAME)
+
+compile-debug: $(FILES)
+	gcc -g -o $(BIN_PATH)/$(OUT_NAME) $(OPTS) $(FILES)
+
+mem-test: compile-debug
+	valgrind --leak-check=full $(BIN_PATH)/$(OUT_NAME)
+
+
