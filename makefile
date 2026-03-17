@@ -54,6 +54,10 @@ remove-all:
 	proy module delete list
 	proy module delete pq
 
+reload:
+	make remove-all
+	make add-all
+
 test: a != echo "$(MAKECMDGOALS)" | cut -d" " -f2
 test: compile_file != find . -name "$(a)_example*"
 
