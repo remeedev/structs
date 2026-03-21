@@ -13,7 +13,7 @@ void *int_to_ptr(int a){
 void *double_to_ptr(double a){
     double *out = (double *)malloc(sizeof(double));
     if (out == NULL){
-        mem_alloc_error(sizeof(double), "int");
+        mem_alloc_error(sizeof(double), "double");
     }
     *out = a;
     return out;
@@ -22,7 +22,7 @@ void *double_to_ptr(double a){
 void *float_to_ptr(float a){
     float *out = (float *)malloc(sizeof(float));
     if (out == NULL){
-        mem_alloc_error(sizeof(float), "int");
+        mem_alloc_error(sizeof(float), "float");
     }
     *out = a;
     return out;

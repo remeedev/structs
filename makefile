@@ -36,6 +36,9 @@ list: messages handled-mem
 pq: array
 	proy module create pq array ./src/imported/priority_queue.c ./src/imported/headers/priority_queue.h
 
+hmem: array messages
+	proy module create hmem array messages ./src/imported/hmem.c ./src/imported/headers/hmem.h
+
 add-all:
 	make messages
 	make handled-mem
@@ -44,6 +47,7 @@ add-all:
 	make dict
 	make list
 	make pq
+	make hmem
 
 remove-all:
 	proy module delete messages
@@ -53,6 +57,7 @@ remove-all:
 	proy module delete dict
 	proy module delete list
 	proy module delete pq
+	proy module delete hmem
 
 reload:
 	make remove-all
