@@ -5,6 +5,8 @@
 
 array create_array();
 
+void *get_array_mallocd_ptr(array arr);
+
 void array_append_pointer(array *arr, void *pointer);
 void array_append_int(array*, int);
 void array_append_float(array*, float);

@@ -92,7 +92,13 @@ char *float2str(float num){
         len++;
     }
     while (tmp > 1.0) tmp /= 10;
-    if (decimal_pos < len - 1) len++;
+    int contains_decimal = 0;
+    if (decimal_pos < len - 1) {
+        len++;
+        contains_decimal = 1;
+    }else {
+        len += 2;
+    }
     if (num < 0) decimal_pos++;
     char *out = (char *)hmalloc(len + 1);
     for (int i = 0; i < len; i++){
@@ -102,10 +108,37 @@ char *float2str(float num){
         }else if (i == decimal_pos){
             out[i] = '.';
             continue;
+        }else if (len - i <= 2 && !contains_decimal) {
+            out[i] = "0."[len - i - 1];
+            continue;
         }
         tmp *= 10;
         out[i] = '0' + ((int)tmp)%10;
     }
     out[len] = '\0';
     return out;
+}
+
+int is_int(char *a){
+    if (a == NULL) return 0;
+    int pos = a[0] == '-' ? 1 : 0;
+    while (a[pos] != '\0'){
+        if (a[pos] < '0' || a[pos] > '9') return 0;
+        pos++;
+    }
+    return 1;
+}
+
+int is_float(char *a){
+    if (a == NULL) return 0;
+    int pos = a[0] == '-' ? 1 : 0;
+    int found_decimal = 0;
+    while (a[pos] != '\0'){
+        if (a[pos] == '.'){
+            if (found_decimal) return 0;
+            found_decimal = 1;
+        }else if (a[pos] > '9' || a[pos] < '0') return 0;
+        pos++;
+    }
+    return found_decimal;
 }

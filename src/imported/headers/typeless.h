@@ -12,8 +12,17 @@ obj create_string_obj(char *content);
 obj create_int_obj(int content);
 obj create_decimal_obj(double content);
 obj create_empty_array_obj();
+obj create_empty_dict_obj();
+
+void * get_dict_from_obj(obj);
+void *obj_get_dict_addr(obj);
 
 void **get_array_from_obj(obj array_obj);
-void *get_array_addr(obj array_obj);
+void *obj_get_array_addr(obj array_obj);
+
+void free_contained_array(obj array_obj);
+
+void free_array_obj(obj array_obj);
+void free_dict_obj(obj dict_obj);
 
 #endif

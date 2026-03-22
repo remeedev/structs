@@ -20,6 +20,10 @@ array create_array(){
     return (array)((int *)out + 1);
 }
 
+void *get_array_mallocd_ptr(array arr){
+    return (void *)((int *)arr - 1);
+}
+
 int get_array_size(array arr){
     if (arr == NULL) return 0;
     return *((int *)arr - 1);

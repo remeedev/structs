@@ -5,6 +5,7 @@
 #include "headers/strs.h"
 #include "headers/array.h"
 #include "headers/handled_mem.h"
+#include "headers/hmem.h"
 
 #define PRIME 333667
 #define A 0.55
@@ -13,7 +14,7 @@
 #define hash_elem void *
 
 dict create_dict(int capacity){
-    void *out = (void *)malloc(2*sizeof(int) + sizeof(array *));
+    void *out = (void *)hmalloc(2*sizeof(int) + sizeof(array *));
     *(int *)out = capacity;
     *((int *)out + 1) = 0;
     array empty_array = create_array();
@@ -23,7 +24,7 @@ dict create_dict(int capacity){
 }
 
 hash_elem generate_hash_elem(char *key, void *value){
-    hash_elem out = (hash_elem)malloc(2*sizeof(void *));
+    hash_elem out = (hash_elem)hmalloc(2*sizeof(void *));
     *(char **)out = key;
     *((void **)out + 1) = value;
     return out;
@@ -78,11 +79,11 @@ array get_key_values(dict d){
 void free_after_expand(dict d){
     array kv_pairs = get_key_values(d);
     for (int i = 0; i < get_array_size(kv_pairs); i++){
-        free(get_key(kv_pairs[i]));
-        free(kv_pairs[i]);
+        hfree(get_key(kv_pairs[i]));
+        hfree(kv_pairs[i]);
     }
     free_array(kv_pairs);
-    free(d);
+    hfree(d);
 }
 
 // Puts pointer in existing key, doesnt free previous value
@@ -106,7 +107,7 @@ void dict_add_pointer(dict *d, char *key, void *ptr){
         if (pos >= get_dict_capacity(*d)) pos = 0;
     }
     if (hash_ar[pos] != NULL && str_equal(get_key(hash_ar[pos]), key)){
-        free(*((void **)hash_ar[pos] + 1));
+        hfree(*((void **)hash_ar[pos] + 1));
         *((void **)hash_ar[pos] + 1) = ptr;
         goto capacity_check;
     }else if(hash_ar[pos] != NULL && get_key(hash_ar[pos]) == NULL) {
@@ -155,7 +156,7 @@ void free_dict(dict d){
     }
     free_array(kv_pairs);
     free_array(tmp_arr);
-    free(d);
+    hfree(d);
 }
 
 void *dict_get(dict d, char *key){

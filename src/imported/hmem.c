@@ -80,7 +80,7 @@ void hfree(void *ptr){
     alloced_mem *tmp = search_mem(ptr);
     void *to_free = ptr;
     if (tmp == NULL && alloced != NULL){
-        print_error("Tried to free memory which was never allocated!\n");
+        print_error("Tried to free memory which was never allocated!");
         return;
     }
     free_func(to_free);

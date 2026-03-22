@@ -4,8 +4,8 @@
 //
 // Compared to trash disposal usage:
 //
-// typeless_no_mem ->51 allocs and frees, of course
-// typeless ->870 allocs and frees, clearly one is memory friendly and the other one isn't
+// typeless_no_mem ->99 allocs and frees (2,378 Bytes total), of course
+// typeless ->2,270 allocs and frees (292,853 Bytes total), clearly one is memory friendly and the other one isn't
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +13,7 @@
 #include "../imported/headers/hmem.h"
 #include "../imported/headers/typeless.h"
 #include "../imported/headers/array.h"
+#include "../imported/headers/hash-table.h" //dict
 
 int main(int argc, char *argv[]){
     obj str_obj = create_string_obj("Hello, world!");
@@ -40,42 +41,42 @@ int main(int argc, char *argv[]){
     hfree(plain_obj);
 
     obj array_obj = create_empty_array_obj();
-    array_append_pointer(get_array_addr(array_obj), create_int_obj(19));
-    array_append_pointer(get_array_addr(array_obj), create_decimal_obj(-420.69));
-    array_append_pointer(get_array_addr(array_obj), create_string_obj("Nigga, please"));
+    array_append_pointer(obj_get_array_addr(array_obj), create_int_obj(19));
+    array_append_pointer(obj_get_array_addr(array_obj), create_decimal_obj(-420.69));
+    array_append_pointer(obj_get_array_addr(array_obj), create_string_obj("--, please"));
 
     obj nested_array = create_empty_array_obj();
-    array_append_pointer(get_array_addr(nested_array), create_int_obj(420));
-    array_append_pointer(get_array_addr(nested_array), create_string_obj("Testing, please"));
+    array_append_pointer(obj_get_array_addr(nested_array), create_int_obj(420));
+    array_append_pointer(obj_get_array_addr(nested_array), create_string_obj("Testing, please"));
 
-    array_append_pointer(get_array_addr(array_obj), nested_array);
+    array_append_pointer(obj_get_array_addr(array_obj), nested_array);
 
     printf("Getting raw list...\n");
     raw_obj = get_raw_obj(array_obj);
     printf("Raw List: %s\n", raw_obj);
     free(raw_obj);
 
-    array arr1 = get_array_from_obj(nested_array);
-    for (int i = 0; i < get_array_size(arr1); i++){ // First removing the list that is nested
-        hfree(*(void **)arr1[i]); // Free elem actually saved
-        hfree((char *)arr1[i] - 1); // Free obj container
-        arr1[i] = NULL;
-    }
-    free((char *)nested_array - 1); // Free the actual elem
-    free_array(arr1); // Finally the elem
-    arr1 = get_array_from_obj(array_obj);
-    arr1[3] = NULL; // Set it to null, allows for free_array to be called
-    for (int i = 0; i < get_array_size(arr1); i++){
-        if ((void *)arr1[i] == NULL) continue;
-        hfree(*(void **)arr1[i]); // Same shit
-        hfree((char *)arr1[i] - 1);
-        arr1[i] = NULL;
-    }
-    raw_obj = get_raw_obj(array_obj);
-    printf("Raw list: %s\n", raw_obj); // Proves empty array set to -> []
-    free(raw_obj);
-    free((char *)array_obj - 1);
-    free_array(arr1);
+    free_array_obj(array_obj);
+
+    obj dict_obj = create_empty_dict_obj();
+    dict* d_addr = obj_get_dict_addr(dict_obj);
+    dict d = *d_addr;
+
+    dict_add_pointer(d_addr, "test", create_int_obj(15));
+    dict_add_pointer(d_addr, "weird", create_string_obj("dumb"));
+    dict_add_pointer(d_addr, "list", create_empty_array_obj());
+
+    obj dict_arr_obj = dict_get(d, "list");
+    array *d_arr_addr = obj_get_dict_addr(dict_arr_obj);
+    array d_arr = *d_arr_addr;
+    array_append_pointer(d_arr_addr, create_string_obj("random string, literally"));
+    array_append_pointer(d_arr_addr, create_int_obj(69));
+
+    raw_obj = get_raw_obj(dict_obj);
+    printf("Raw dict: %s\n", raw_obj);
+    hfree(raw_obj);
+
+    free_dict_obj(d_addr);
 
     return 0;
 }

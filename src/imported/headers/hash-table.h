@@ -13,6 +13,13 @@ int get_dict_size(dict d);
 void *dict_get(dict d, char *key);
 void **dict_get_addr(dict d, char *key);
 
+// USED BY typeless.c
+void **get_key_values(dict d);
+char *get_key(hash_elem a);
+void *get_value(hash_elem a);
+void **get_dict_array(dict d);
+// END
+
 void dict_put_pointer_no_free(dict *d, char *key, void *ptr);
 
 void dict_add_pointer(dict *d, char *key, void *ptr);

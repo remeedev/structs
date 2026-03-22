@@ -15,5 +15,5 @@ void value_should_be(int value, char *arg_name, char* should_be){
 }
 
 void print_error(char *error_text){
-    printf("%s%s%s", RED, error_text, END);
+    printf("%s%s%s\n", RED, error_text, END);
 }

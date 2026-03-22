@@ -7,6 +7,8 @@ int str2int(char *str);
 char *int2str(int num);
 float str2float(char *str);
 char *float2str(float num);
-char *dupstr(char *a);
+int is_int(char *);
+int is_float(char *);
+char *dupstr(char *);
 
 #endif
