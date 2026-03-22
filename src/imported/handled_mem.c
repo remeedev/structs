@@ -1,8 +1,8 @@
-#include <stdlib.h>
 #include "headers/messages.h"
+#include "headers/hmem.h"
 
 void *int_to_ptr(int a){
-    int *out = (int *)malloc(sizeof(int));
+    int *out = (int *)hmalloc(sizeof(int));
     if (out == NULL){
         mem_alloc_error(sizeof(int), "int");
     }
@@ -11,7 +11,7 @@ void *int_to_ptr(int a){
 }
 
 void *double_to_ptr(double a){
-    double *out = (double *)malloc(sizeof(double));
+    double *out = (double *)hmalloc(sizeof(double));
     if (out == NULL){
         mem_alloc_error(sizeof(double), "double");
     }
@@ -20,7 +20,7 @@ void *double_to_ptr(double a){
 }
 
 void *float_to_ptr(float a){
-    float *out = (float *)malloc(sizeof(float));
+    float *out = (float *)hmalloc(sizeof(float));
     if (out == NULL){
         mem_alloc_error(sizeof(float), "float");
     }

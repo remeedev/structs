@@ -1,4 +1,4 @@
-FILES:=$(shell find -name "*.c" | grep -v "example")
+FILES:=$(shell find ./src -name "*.c" | grep -v "example")
 OPTS:=-lm
 BIN_PATH:=./bin
 OUT_NAME:=program
@@ -18,12 +18,6 @@ create-c-template:
 messages:
 	proy module create messages ./src/imported/messages.c ./src/imported/headers/messages.h
 
-handled-mem:
-	proy module create handled-mem ./src/imported/handled_mem.c ./src/imported/headers/handled_mem.h
-
-strs:
-	proy module create strs ./src/imported/strs.c ./src/imported/headers/strs.h
-
 array: messages handled-mem
 	proy module create array messages handled-mem ./src/imported/array.c ./src/imported/headers/array.h
 
@@ -38,6 +32,12 @@ pq: array
 
 hmem: array messages
 	proy module create hmem array messages ./src/imported/hmem.c ./src/imported/headers/hmem.h
+
+strs: hmem
+	proy module create strs hmem ./src/imported/strs.c ./src/imported/headers/strs.h
+
+handled-mem: hmem
+	proy module create handled-mem hmem ./src/imported/handled_mem.c ./src/imported/headers/handled_mem.h
 
 add-all:
 	make messages
@@ -67,6 +67,6 @@ test: a != echo "$(MAKECMDGOALS)" | cut -d" " -f2
 test: compile_file != find . -name "$(a)_example*"
 
 test: $(compile_file)
-	gcc -o $(BIN_PATH)/test_$(a) $(OPTS) $(compile_file) $(shell find . -name "*.c" | grep -v "example" | grep -v "main.c")
-	valgrind --leak-check=full -s $(BIN_PATH)/test_$(a)
+	gcc -g -o $(BIN_PATH)/test_$(a) $(OPTS) $(compile_file) $(shell find . -name "*.c" | grep -v "example" | grep -v "main.c")
+	valgrind --track-origins=yes --leak-check=full -s $(BIN_PATH)/test_$(a)
 	rm -v $(BIN_PATH)/test_$(a)

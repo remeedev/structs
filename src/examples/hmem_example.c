@@ -18,6 +18,7 @@ int main(int argc, char *argv[]){
         aa[i] = "hello"[i];
     }
     printf("%s\n", aa);
+    hfree(aa);
 
     printf("Total mallocs: %d\n", get_currently_malloced_size());
 

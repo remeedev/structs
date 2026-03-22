@@ -1,0 +1,19 @@
+#ifndef typeless
+#define typeless
+
+#define obj void *
+
+char *get_raw_obj(obj object);
+char *get_plain_obj(obj object);
+
+void set_object_content(obj, void *);
+
+obj create_string_obj(char *content);
+obj create_int_obj(int content);
+obj create_decimal_obj(double content);
+obj create_empty_array_obj();
+
+void **get_array_from_obj(obj array_obj);
+void *get_array_addr(obj array_obj);
+
+#endif
