@@ -14,6 +14,10 @@
  *  Not using trash disposal uses _quirks_
  * Check typeless_no_mem to see memory comparison between both files,
  * a bit shocking but then again, yeah makes sense.
+ * 
+ *
+ * Be careful with you memory
+ * - Remee
  */
 
 #include <stdio.h>
