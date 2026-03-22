@@ -16,4 +16,7 @@ compile-debug: $(FILES)
 mem-test: compile-debug
 	valgrind --leak-check=full $(BIN_PATH)/$(OUT_NAME)
 
+wc:
+	echo "Lines Words" && find . -name "*" | grep -E "(\.c|\.h)" | xargs wc -wl
+
 

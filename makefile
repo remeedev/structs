@@ -3,6 +3,9 @@ OPTS:=-lm
 BIN_PATH:=./bin
 OUT_NAME:=program
 
+wc:
+	echo "Lines Words" && find . -name "*" | grep -E "(\.c|\.h)" | xargs wc -wl
+
 create-c-template:
 	mkdir -v ./tmp
 	mkdir -v ./tmp/bin
