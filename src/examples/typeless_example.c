@@ -1,3 +1,21 @@
+/*
+ * OPENING COMMENTS FOR CODE:
+ * This program uses trash disposal also known as
+ * hmem.h, this was a program created by me (remeedev),
+ * when tested it will show a LOT of memory allocated,
+ * even though it is the simplest path to take when
+ * dealing with mallocs, if you feel capable of handling
+ * ALL of the frees then you can check out typeless_no_mem_example.c, 
+ * it demonstrates same function as here but it doesn't use trash
+ * disposal, but it does use some quirks to free every element,
+ * UPSIDE:
+ *  Not using trash disposal uses WAY LESS memory.
+ * DOWNSIDE:
+ *  Not using trash disposal uses _quirks_
+ * Check typeless_no_mem to see memory comparison between both files,
+ * a bit shocking but then again, yeah makes sense.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -32,9 +50,22 @@ int main(int argc, char *argv[]){
 
     printf("Getting raw list...\n");
     printf("Raw List: %s\n", get_raw_obj(array_obj));
+    /*
+     * typeless_no_mem handles memory directly,
+     * has example of a list that is created and
+     * then cleared, shows empty in list, the following
+     * is an example, with trash disposal of emptied list
+    */
+
+    for (int i = 0; i < get_array_size(get_array_from_obj(array_obj)); i++){
+        get_array_from_obj(array_obj)[i] = NULL; // emptying every elem
+    }
+
+    printf("Raw List: %s\n", get_raw_obj(array_obj));
 
     free((int *)get_array_from_obj(array_obj) - 1); // Complex objects require free
     free((int *)get_array_from_obj(nested_array) - 1); // free_array tries to free all elements, must use basic free
+
 
     end_memory_registering();
 
