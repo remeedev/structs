@@ -93,7 +93,7 @@ char *float2str(float num){
     }
     while (tmp > 1.0) tmp /= 10;
     int contains_decimal = 0;
-    if (decimal_pos < len - 1) {
+    if (decimal_pos < len) {
         len++;
         contains_decimal = 1;
     }else {

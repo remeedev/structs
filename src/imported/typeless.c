@@ -1,10 +1,12 @@
 #include "headers/typeless.h"
+#include "headers/ezstr.h"
 #include "headers/hmem.h"
 #include "headers/array.h"
 #include "headers/hash-table.h"
 #include "headers/messages.h"
 #include "headers/strs.h"
 #include "headers/handled_mem.h"
+#include "headers/files.h"
 #include <stdio.h>
 
 // Objs will be stored like: type, content
@@ -272,8 +274,137 @@ void free_contained_array(obj array_obj){
     free(get_array_mallocd_ptr(arr)); // Arrays are unhandled mem
 }
 
+void free_simple_obj(obj object){
+    free(*(void **)object);
+    free((char *)object - 1);
+}
+
 obj create_empty_dict_obj(){
     obj out = create_empty_object(DICT_TYPE);
     set_object_content(out, create_dict(11));
+    return out;
+}
+
+int get_to_next_obj(char *a, int i){
+    while (a[i] != '\0' && (a[i] == ' ' || a[i] == '\n' || a[i] == ',' || a[i] == ':')) i++;
+    return i;
+}
+
+int try_read_obj_char(string *out, char *str, int *pos, char a){
+    if (str[*pos] == a){
+        concat_char_to_str(out, a);
+        char b;
+        switch(a){
+            case '"': ;
+                b = a;
+                break;
+            case '[': ;
+                b = ']';
+                break;
+            case '{': ;
+                b = '}';
+                break;
+            default:
+                b = '\0';
+        }
+        (*pos)++;
+        while (str[*pos] != '\0' && str[*pos] != b){
+            concat_char_to_str(out, str[*pos]);
+            (*pos)++;
+        }
+        concat_char_to_str(out, b);
+        (*pos)++;
+        return 1;
+    }
+    return 0;
+}
+
+string read_next_obj(char *str, int* pos){
+    string out = create_empty_string();
+
+    if (try_read_obj_char(&out, str, pos, '"') ||\
+            try_read_obj_char(&out, str, pos, '[') ||\
+            try_read_obj_char(&out, str, pos, '{')){
+        return out;
+    } 
+    while ((str[*pos] >= '0' && str[*pos] <= '9') || str[*pos] == '-' || str[*pos] == '.') {
+        concat_char_to_str(&out, str[*pos]);
+        (*pos)++;
+    }
+
+    if (get_string_size(out) == 0){
+        free_string(out);
+        return NULL;
+    }
+
+    return out;
+}
+
+obj read_to_obj(char *str){
+    if (str == NULL) return NULL;
+    int strlen = str_len(str);
+    int pos = get_to_next_obj(str, 0);
+
+    if (str[pos] == '"'){
+        string read_obj = read_next_obj(str, &pos);
+        read_obj[get_string_size(read_obj) - 1] = '\0';
+        obj out = create_string_obj(read_obj + 1);
+        free_string(read_obj);
+        return out;
+    }else if (str[pos] == '['){
+        pos++;
+        pos = get_to_next_obj(str, pos);
+        obj out = create_empty_array_obj();
+        array *addr = obj_get_array_addr(out);
+        array arr = *addr;
+        while (str[pos] != '\0' && str[pos] != ']'){
+            string tmp_obj = read_next_obj(str, &pos);
+            if (tmp_obj) {
+                array_append_pointer(addr, read_to_obj(tmp_obj));
+                free_string(tmp_obj);
+            }
+            pos = get_to_next_obj(str, pos);
+        }
+        return out;
+    }else if (str[pos] == '{'){
+        pos++;
+        pos = get_to_next_obj(str, pos);
+        obj out = create_empty_dict_obj();
+        dict *addr = obj_get_dict_addr(out);
+        dict d = *addr;
+        while (str[pos] != '\0' && str[pos] != '}'){
+            // Read key
+            string key_obj = read_next_obj(str, &pos);
+            pos = get_to_next_obj(str, pos);
+            string value_obj = read_next_obj(str, &pos);
+            obj parsed_value = read_to_obj(value_obj);
+            obj parsed_key = read_to_obj(key_obj);
+            char *raw_key = get_raw_obj(parsed_key);
+            dict_add_pointer(addr, raw_key, parsed_value);
+            free_simple_obj(parsed_key);
+            hfree(raw_key);
+            free_string(key_obj);
+            free_string(value_obj);
+            pos = get_to_next_obj(str, pos);
+        }
+        return out;
+    }else{
+        string full_obj = read_next_obj(str, &pos);
+        obj out = NULL;
+        if (is_int(full_obj)){
+            out = create_int_obj(str2int(full_obj));
+        }else if (is_float(full_obj)){
+            out = create_decimal_obj(str2float(full_obj));
+        }
+        free_string(full_obj);
+        return out;
+    }
+    return NULL;
+}
+
+obj read_from_file(char *file_name){
+    string file_content = read_file(file_name);
+    obj out = read_to_obj(file_content);
+    if (file_content) free_string(file_content);
     return out;
 }

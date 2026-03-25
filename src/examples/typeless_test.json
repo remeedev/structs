@@ -1,0 +1,10 @@
+{
+    "Key":["Value-a", "Value-b"],
+    "Key2": 2.6,
+    "Test": 10.9,
+    "Key3": "Sing",
+    "Key4": {
+        "Doctor":"doctor",
+        "Wao":"Wou"
+    }
+}
