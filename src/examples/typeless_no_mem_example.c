@@ -21,22 +21,19 @@ int main(int argc, char *argv[]){
     char *plain_obj;
     printf("Raw obj: %s\n", raw_obj = get_raw_obj(str_obj));
     printf("Plain obj: %s\n", plain_obj = get_plain_obj(str_obj));
-    hfree(*(char **)str_obj); // Weird free, first the item
-    hfree((char *)str_obj - 1); // Then the obj itself
+    free_obj(str_obj);
     hfree(raw_obj);
     hfree(plain_obj);
 
     obj int_obj = create_int_obj(19);
     printf("Raw obj: %s == Plain obj: %s\n", raw_obj = get_raw_obj(int_obj), plain_obj = get_plain_obj(int_obj));
-    free(*(void **)int_obj);
-    free((char *)int_obj - 1);
+    free_obj(int_obj);
     hfree(raw_obj);
     hfree(plain_obj);
 
     obj float_obj = create_decimal_obj(-10.5);
     printf("Raw obj: %s == Plain obj: %s\n", raw_obj = get_raw_obj(float_obj), plain_obj = get_plain_obj(float_obj));
-    free(*(void **)float_obj);
-    free((char *)float_obj - 1);
+    free_obj(float_obj);
     hfree(raw_obj);
     hfree(plain_obj);
 
@@ -56,7 +53,7 @@ int main(int argc, char *argv[]){
     printf("Raw List: %s\n", raw_obj);
     free(raw_obj);
 
-    free_array_obj(array_obj);
+    free_obj(array_obj);
 
     obj dict_obj = create_empty_dict_obj();
     dict* d_addr = obj_get_dict_addr(dict_obj);
@@ -76,7 +73,7 @@ int main(int argc, char *argv[]){
     printf("Raw dict: %s\n", raw_obj);
     hfree(raw_obj);
 
-    free_dict_obj(d_addr);
+    free_obj(d_addr);
 
     return 0;
 }

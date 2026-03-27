@@ -1,3 +1,4 @@
+#include "headers/bytes.h"
 #include "headers/typeless.h"
 #include "headers/ezstr.h"
 #include "headers/hmem.h"
@@ -18,6 +19,8 @@
 #define DOUBLE_TYPE 3
 #define LIST_TYPE 4
 #define DICT_TYPE 5
+#define LIST_TERMINATOR 6
+#define DICT_TERMINATOR 7
 
 obj create_empty_object(char type){
     obj out = (obj)hmalloc(sizeof(char) + sizeof(void *));
@@ -92,9 +95,81 @@ char *get_plain_obj(obj object){
     return "";
 }
 
+unsigned char *get_bytes_dict(obj dict_obj, size_t *size);
+unsigned char *get_bytes_array(obj array_obj, size_t *size);
+
+unsigned char *get_byte_obj(obj object, size_t* size){
+    size_t jic;
+    if (size == NULL) size = &jic;
+    *size = 0; // default val
+    unsigned char *out;
+    unsigned char *tmp;
+    switch (get_type(object)){
+        case STRING_TYPE: ;
+            *size = get_string_size(*(string *)object) + 2;
+            out = hmalloc(*size);
+            if (out == NULL){
+                mem_alloc_error(*size, "string byte obj");
+                *size = -1;
+                return NULL;
+            }
+            out[0] = STRING_TYPE;
+            out[get_string_size(*(string *)object) + 1] = '\0';
+            for (int i = 0; i < get_string_size(*(string *)object); i++){
+                out[i + 1] = (unsigned char)((*(string *)object)[i]);
+            }
+            return out;
+            break;
+        case INT_TYPE: ;
+            *size = sizeof(char) + sizeof(int);
+            out = hmalloc(*size);
+            if (out == NULL){
+                mem_alloc_error(*size, "int byte obj");
+                *size = -1;
+                return NULL;
+            }
+            out[0] = INT_TYPE;
+            tmp = int2bytes(**(int **)object);
+            for (int i = 0; i < sizeof(int); i++){
+                out[i + 1] = tmp[i];
+            }
+            hfree(tmp);
+            return out;
+            break;
+        case DOUBLE_TYPE: ;
+            *size = sizeof(char) + sizeof(double);
+            out = hmalloc(*size);
+            if (out == NULL){
+                mem_alloc_error(*size, "double byte obj");
+                *size=-1;
+                return NULL;
+            }
+            out[0] = DOUBLE_TYPE;
+            tmp = float2bytes(**(double **)object);
+            for (int i = 0; i < sizeof(double); i++){
+                out[i + 1] = tmp[i];
+            }
+            hfree(tmp);
+            return out;
+            break;
+        case DICT_TYPE: ;
+            return get_bytes_dict(object, size);
+            break;
+        case LIST_TYPE: ;
+            return get_bytes_array(object, size);
+            break;
+        default: ;
+            print_error("Tried reading object of unknown type!");
+            break;
+    }
+    return NULL;
+}
+
 obj create_string_obj(char *content){
     obj out = create_empty_object(STRING_TYPE);
-    set_object_content(out, dupstr(content));
+    string contnt = create_empty_string();
+    concat_to_str(&contnt, content);
+    set_object_content(out, contnt);
     return out;
 }
 
@@ -215,6 +290,79 @@ char *get_raw_dict(obj dict_obj){
     return out;
 }
 
+unsigned char *get_bytes_dict(obj dict_obj, size_t *size){
+    dict d = get_dict_from_obj(dict_obj);
+    array elems = get_key_values(d);
+    int len = 1; // type
+    for (int i = 0; i < get_array_size(elems); i++){
+        len += str_len(get_key(elems[i])) + 2; // 1%s\0:
+        size_t tmp_size;
+        unsigned char *tmp = get_byte_obj(get_value(elems[i]), &tmp_size);
+        len += tmp_size; // obj
+        hfree(tmp);
+    }
+    unsigned char *out = (unsigned char *)hmalloc(len + 1);
+    if (out == NULL){
+        mem_alloc_error(len, "byte dictionary");
+        return NULL;
+    }
+    *size = len + 1;
+    out[0] = DICT_TYPE;
+    int pos = 1;
+    int i = 0;
+    while (pos < len){
+        hash_elem elem = elems[i];
+        out[pos++] = STRING_TYPE;
+        char *key = get_key(elem);
+        int key_len = str_len(key);
+        for (int j = 0; j < key_len + 1; j++){
+            out[pos++] = key[j];
+        }
+        size_t val_len;
+        unsigned char *tmp = get_byte_obj(get_value(elem), &val_len);
+        for (int j = 0; j < val_len; j++){
+            out[pos++] = tmp[j];
+        }
+        hfree(tmp);
+        i++;
+    }
+    out[pos] = DICT_TERMINATOR;
+    free((int *)elems - 1);
+    return out;
+}
+
+unsigned char *get_bytes_array(obj array_obj, size_t *size){
+    array interpreted = get_array_from_obj(array_obj);
+    int len = 1; // type
+    for (int i = 0; i < get_array_size(interpreted); i++){
+        size_t tmp = 1;
+        unsigned char *to_free = get_byte_obj(interpreted[i], &tmp);
+        if (tmp == 0) continue;
+        len += tmp;
+        hfree(to_free);
+    }
+    unsigned char *out = (unsigned char *)hmalloc(len + 1);
+    if (out == NULL){
+        mem_alloc_error(len + 1, "raw array");
+        return NULL;
+    }
+    *size = len + 1;
+    out[0] = LIST_TYPE;
+    int pos = 1;
+    int i = 0;
+    while (pos < len - 1){
+        size_t tmp = 1;
+        unsigned char *to_free = get_byte_obj(interpreted[i++], &tmp);
+        if (tmp == 0) continue;   
+
+        for (int j = 0; j < tmp; j++){
+            out[pos++] = to_free[j];
+        }
+        hfree(to_free);
+    }
+    out[pos] = LIST_TERMINATOR;
+    return out;
+}
 obj create_empty_array_obj(){
     obj out = create_empty_object(LIST_TYPE);
     array to_write = create_array();
@@ -233,15 +381,7 @@ void free_array_obj(obj array_obj){
     array *addr = obj_get_array_addr(array_obj);
     array arr = *addr;
     for (int i = 0; i < get_array_size(arr); i++){
-        if (get_type(arr[i]) == LIST_TYPE){
-            free_array_obj(arr[i]);
-            goto clear;
-        }else if (get_type(arr[i]) == DICT_TYPE){
-            free_dict_obj(arr[i]);
-            goto clear;
-        }
-        free_regular_obj(arr[i]);
-clear:
+        if (arr[i]) free_obj(arr[i]);
         arr[i] = NULL;
     }
     free_array(arr);
@@ -252,14 +392,7 @@ void free_dict_obj(obj dict_obj){
     array kv_pairs = get_key_values(get_dict_from_obj(dict_obj));
     for (int i = 0; i < get_array_size(kv_pairs); i++){
         void *val = get_value(kv_pairs[i]);
-        if (get_type(val) == LIST_TYPE){
-            free_array_obj(val);
-            goto clear;
-        }else if (get_type(val) == DICT_TYPE){
-            free_dict_obj(val);
-            goto clear;
-        }
-        free_regular_obj(val);
+        free_obj(val);
 clear:
         dict_put_pointer_no_free(obj_get_dict_addr(dict_obj), get_key(kv_pairs[i]), NULL);
         kv_pairs[i] = NULL;
@@ -277,6 +410,27 @@ void free_contained_array(obj array_obj){
 void free_simple_obj(obj object){
     free(*(void **)object);
     free((char *)object - 1);
+}
+
+void free_obj(obj object){
+    switch(get_type(object)){
+        case STRING_TYPE: ;
+            free_string(*(string *)object);
+            free((char *)object - 1);
+            break;
+        case INT_TYPE: ;
+            free_simple_obj(object);
+            return;
+        case DOUBLE_TYPE: ;
+            free_simple_obj(object);
+            return;
+        case DICT_TYPE: ;
+            free_dict_obj(object);
+            return;
+        case LIST_TYPE: ;
+            free_array_obj(object);
+            return;
+    }
 }
 
 obj create_empty_dict_obj(){
@@ -381,7 +535,7 @@ obj read_to_obj(char *str){
             obj parsed_key = read_to_obj(key_obj);
             char *raw_key = get_raw_obj(parsed_key);
             dict_add_pointer(addr, raw_key, parsed_value);
-            free_simple_obj(parsed_key);
+            free_obj(parsed_key);
             hfree(raw_key);
             free_string(key_obj);
             free_string(value_obj);
@@ -398,6 +552,49 @@ obj read_to_obj(char *str){
         }
         free_string(full_obj);
         return out;
+    }
+    return NULL;
+}
+obj read_bytes_to_obj(unsigned char *bytes, int *pos){
+    if (bytes == NULL) return NULL;
+    int jic = 0;
+    if (pos == NULL) pos = &jic;
+    char type = (char)bytes[(*pos)++];
+    switch(type){
+        case STRING_TYPE: ;
+            obj out = create_string_obj("");
+            string* tmp = (string *)out;
+            while ((unsigned char)(bytes[*pos]) != '\0') concat_char_to_str(tmp, (char)bytes[(*pos)++]);
+            (*pos)++;
+            return out;
+        case INT_TYPE: ;
+            int val;
+            for (int i = 0; i < sizeof(int); i++) ((unsigned char *)&val)[i] = bytes[(*pos)++];
+            return create_int_obj(val);
+        case DOUBLE_TYPE: ;
+            double dec;
+            for (int i = 0; i < sizeof(double); i++) ((unsigned char *)&dec)[i] = bytes[(*pos)++];
+            return create_decimal_obj(dec);
+        case LIST_TYPE: ;
+            obj list_out = create_empty_array_obj();
+            array *arr_addr = obj_get_array_addr(list_out);
+            while (bytes[*pos] != LIST_TERMINATOR){
+                array_append_pointer(arr_addr, read_bytes_to_obj(bytes, pos));
+            }
+            return list_out;
+        case DICT_TYPE: ;
+            obj dict_out = create_empty_dict_obj();
+            dict *dict_addr = obj_get_dict_addr(dict_out);
+            while (bytes[*pos] != DICT_TERMINATOR){
+                obj key_obj = read_bytes_to_obj(bytes, pos);
+                obj value_obj = read_bytes_to_obj(bytes, pos);
+                dict_add_pointer(dict_addr, *(char **)key_obj, value_obj);
+                free_obj(key_obj);
+            }
+            return dict_out;
+        default: ;
+            print_error("Tried to read object of unknown type!");
+            break;
     }
     return NULL;
 }

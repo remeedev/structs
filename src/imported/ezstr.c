@@ -32,15 +32,8 @@ void concat_to_str(string *str, char *text){
 }
 
 void concat_char_to_str(string *str, char a){
-    char *to_add = hmalloc(2);
-    if (to_add == NULL){
-        mem_alloc_error(2, "character string");
-        return;
-    }
-    to_add[0] = a;
-    to_add[1] = '\0';
+    char to_add[2] = {a, '\0'};
     concat_to_str(str, to_add);
-    hfree(to_add);
 }
 
 void free_string(string str){
