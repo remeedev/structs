@@ -36,5 +36,12 @@ int main (int argc, char *argv[]){
 
     free_obj(example_read);
 
+    unsigned char tmp[] = {1, 'H', 'e', 'l', 'l', 'o', ' ', 'e', 'l', 'f', 's', 'z', '\0'};
+    obj example_bytes = read_bytes_to_obj(tmp, NULL);
+    char *byte_read = get_raw_obj(example_bytes);
+    printf("%s\n", byte_read);
+    hfree(byte_read);
+    free_obj(example_bytes);
+
     return 0;
 }
