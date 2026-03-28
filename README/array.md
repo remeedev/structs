@@ -34,3 +34,11 @@ Array also contains a function called:
 `array_contains(array, void *)`
 
 That function will determine if a specific pointer is stored inside of the array.
+
+To get the value of an element stored in the array just do:
+
+`array[i]` being `array` the array that you created and `i` being the position accessed, take into account that for any i the type of array[i] is `void *`, therefore it must be cast to another type before being operated on.
+
+When an array is done being used you must call:
+
+`free_array(new_array)`, replacing `new_array` with the name of the array you created initially!
