@@ -30,3 +30,30 @@ Once `proy` is installed just run:
 `make install`
 
 It will create the c template that all the imports follow and it will also create all of the imports in the right order (yes, there is a right order because there are some circular imports).
+
+## C template
+
+The c template installed by `structs` is the following, when you run `tree` on it:
+
+```
+.
+├── bin
+├── makefile
+└── src
+    ├── headers
+    ├── imported
+    │   └── headers
+    └── main.c
+```
+
+It contains a folder for binaries, a folder for the source, for the files and headers. It contains by default a basic print program in `main.c`, however this can be changed, if needed, by changing the content at `./src/main.c`, also, the makefile comes with the following commands:
+
+- `make compile`, which compiles a program to bin, by default the program name is stored in the makefile, in case it wants to be changed, additionally it has variables for any extra compile arguments you need to pass.
+
+- `make run`, first compiles, then runs the program.
+
+- `make compile-debug`, compiles the program with debugging information.
+
+- `make mem-test`, does compile-debug, then runs through valgrind for memory tests.
+
+- `make wc`, does nothing with the program, just returns the word count of all files not **imported**.
