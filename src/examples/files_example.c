@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "../imported/headers/files.h"
+#include "../imported/headers/bytes.h"
 
 int main(int argc, char *argv[]){
     char *file_name = "./src/examples/files_example.c";
@@ -13,6 +14,10 @@ int main(int argc, char *argv[]){
     }
     write_to_file(file_name, self_content); // Writes to self, no change
     free_string(self_content);
+    size_t size;
+    unsigned char *self_compiled = read_file_bytes("./src/examples/files_example.c", &size);
+    printf("Size of self : %lu bytes\n", size);
+    free(self_compiled);
     return 0;
 }
 

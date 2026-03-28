@@ -32,6 +32,10 @@ void free_dict_obj(obj dict_obj);
 
 obj read_bytes_to_obj(unsigned char *bytes, int *pos);
 obj read_to_obj(char *str);
+obj read_from_plain_file(char *file_name);
+obj read_from_bytes_file(char *file_name);
 obj read_from_file(char *file_name);
+
+void write_obj_to_file(int as_bytes, obj elem, char *file_name);
 
 #endif

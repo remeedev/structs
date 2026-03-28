@@ -2,6 +2,11 @@
 
 #include "../imported/headers/hmem.h"
 #include "../imported/headers/typeless.h"
+#include "../imported/headers/files.h"
+
+void check_written_type(char *file_name){
+    printf("Written to %s a couple of %s\n", file_name, is_file_bytes(file_name) ? "bytes" : "characters");
+}
 
 int main (int argc, char *argv[]){
     char *test_obj_str = "     \"Test string\"";
@@ -26,6 +31,12 @@ int main (int argc, char *argv[]){
     char *unparsed_dict = get_raw_obj(parsed_dict);
     printf("%s\n", unparsed_dict);
     hfree(unparsed_dict);
+    char *text_path = "./example_files/dict.json";
+    char *byte_path = "./example_files/dict_bytes.obj";
+    write_obj_to_file(0, parsed_dict, text_path);
+    check_written_type(text_path);
+    write_obj_to_file(1, parsed_dict, byte_path);
+    check_written_type(byte_path);
     free_obj(parsed_dict);
 
     // read_from_file(char *file_name) returns the same as reading the file and then passing read obj to read_to_obj

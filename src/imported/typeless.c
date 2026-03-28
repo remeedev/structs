@@ -1,5 +1,4 @@
 #include "headers/bytes.h"
-#include "headers/typeless.h"
 #include "headers/ezstr.h"
 #include "headers/hmem.h"
 #include "headers/array.h"
@@ -21,6 +20,8 @@
 #define DICT_TYPE 5
 #define LIST_TERMINATOR 6
 #define DICT_TERMINATOR 7
+
+void free_obj(obj);
 
 obj create_empty_object(char type){
     obj out = (obj)hmalloc(sizeof(char) + sizeof(void *));
@@ -599,9 +600,42 @@ obj read_bytes_to_obj(unsigned char *bytes, int *pos){
     return NULL;
 }
 
-obj read_from_file(char *file_name){
+obj read_from_plain_file(char *file_name){
     string file_content = read_file(file_name);
     obj out = read_to_obj(file_content);
     if (file_content) free_string(file_content);
     return out;
+}
+
+obj read_from_bytes_file(char *file_name){
+    size_t size;
+    unsigned char *file_content = read_file_bytes(file_name, &size);
+    if (size < 0){
+        print_error("There has been an error reading the file!\n");
+        return NULL;
+    }
+    obj out = read_bytes_to_obj(file_content, NULL);
+    free(file_content);
+    return out;
+}
+
+obj read_from_file(char *file_name){
+    if (is_file_bytes(file_name)){
+        return read_from_bytes_file(file_name);
+    }else{
+        return read_from_plain_file(file_name);
+    }
+}
+
+void write_obj_to_file(int as_bytes, obj elem, char *file_name){
+    if (as_bytes){
+        size_t size;
+        unsigned char *bytes = get_byte_obj(elem, &size);
+        write_bytes_to_file(file_name, bytes, size);
+        hfree(bytes);
+    }else{
+        char *raw = get_plain_obj(elem);
+        write_to_file(file_name, raw);
+        hfree(raw);
+    }
 }

@@ -28,6 +28,7 @@ unsigned char * float2bytes(double a){
 }
 
 void print_bytes(char *byte_name, void *byte_addr, size_t size){
+    if (size < 0) return;
     printf("Bytes contained in ");
     if (byte_name){
         printf("%s:\n", byte_name);
