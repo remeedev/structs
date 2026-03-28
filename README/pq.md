@@ -1,5 +1,7 @@
 # Priority Queue
 
+Proy module: **pq**
+
 It's a list, except it must always be somehow organized (??)
 
 ## Usage

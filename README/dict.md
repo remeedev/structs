@@ -1,5 +1,7 @@
 # Dict
 
+Proy module: **dict**
+
 A dictionary is a useful tool whose element indices are determined by a string key.
 
 ## Usage

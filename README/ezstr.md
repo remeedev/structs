@@ -1,5 +1,7 @@
 # ezstr
 
+Proy module: **ezstr**
+
 Ezstr is basically a `char *` that doesn't need to call `strlen` every time you want to figure its length out.
 
 ## Usage
