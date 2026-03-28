@@ -11,6 +11,7 @@ void free_list(list l);
 void list_append_int(list l, int num);
 void list_append_float(list l, float num);
 void list_append_double(list l, double num);
+void list_append_pointer(list l, void *content);
 
 node get_first_node(list l);
 node get_last_node(list l);
