@@ -47,8 +47,9 @@ while (first_node != NULL){
     // Do something with first_node...
 
     // Go to next node:
-    prev = first_node;
+    void *tmp = first_node;
     first_node = node_xor(first_node, prev);
+    prev = tmp;
 }
 ```
 
