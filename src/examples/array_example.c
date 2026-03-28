@@ -1,3 +1,5 @@
+// To run this code run from ../../, so from main.
+//      make test array
 // Example code for array
 
 #include <stdio.h>

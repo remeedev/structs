@@ -107,3 +107,12 @@ free_obj(obj); // Will free any obj
 ```
 
 That is because this function is the universal for every other function.
+
+## Example files
+
+(This is why I should've made a new repo)
+
+- [typeless_bytes_example.c](https://github.com/remeedev/structs/blob/main/src/examples/typeless_bytes_example.c)
+- [typeless_example.c](https://github.com/remeedev/structs/blob/main/src/examples/typeless_example.c)
+- [typeless_no_mem_example.c](https://github.com/remeedev/structs/blob/main/src/examples/typeless_no_mem_example.c)
+- [typeless_read_write_example.c](https://github.com/remeedev/structs/blob/main/src/examples/typeless_read_write_example.c)

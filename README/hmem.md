@@ -41,3 +41,7 @@ get_currently_malloced_size();
 ```
 
 It requires memory registering to be turned on and it returns the total size of memory that has been allocated.
+
+## Example files
+
+- [hmem_example.c](https://github.com/remeedev/structs/blob/main/src/examples/hmem_example.c)

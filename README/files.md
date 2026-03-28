@@ -22,3 +22,7 @@ int is_file_bytes(char *file_name);
 `write_to_file` and `write_bytes_to_file` both take in a file name and content and just write the content to the file in `file_name`, `write_bytes_to_file` has an extra argument to know the size of bytes being written.
 
 Finally: `is_file_bytes` returns whether a file has any byte elements (non-printable characters) or if it is purely plaintext. When true the file indicated by `file_name` is considered to be a byte file.
+
+## Example files
+
+- [files_example.c](https://github.com/remeedev/structs/blob/main/src/examples/files_example.c)

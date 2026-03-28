@@ -1,3 +1,6 @@
+// To run this code run from ../../, so from main.
+//      make test typeless_read_write
+
 #include <stdio.h>
 
 #include "../imported/headers/hmem.h"

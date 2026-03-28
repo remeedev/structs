@@ -44,3 +44,7 @@ To get the value of an element stored in the array just do:
 When an array is done being used you must call:
 
 `free_array(new_array)`, replacing `new_array` with the name of the array you created initially!
+
+## Example files
+
+- [array_example.c](https://github.com/remeedev/structs/blob/main/src/examples/array_example.c)

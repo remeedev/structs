@@ -1,3 +1,7 @@
+// To run this code run from ../../, so from main.
+//      make test dict 
+
+
 // Example for hash_table or dict, whatever u wanna call it
 #include <stdio.h>
 #include <stdlib.h>

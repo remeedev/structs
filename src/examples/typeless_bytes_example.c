@@ -1,3 +1,6 @@
+// To run this code run from ../../, so from main.
+//      make test typeless_bytes
+
 #include <stdio.h>
 
 #include "../imported/headers/bytes.h"

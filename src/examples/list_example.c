@@ -1,3 +1,6 @@
+// To run this code run from ../../, so from main.
+//      make test list 
+
 // Example for a linked list
 
 #include <stdio.h>

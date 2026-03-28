@@ -48,3 +48,7 @@ Finally, when you are done with the queue you must free it by running:
 ```c
 free_pq(pq);
 ```
+
+## Example files
+
+- [pq_example.c](https://github.com/remeedev/structs/blob/main/src/examples/pq_example.c)

@@ -70,3 +70,7 @@ Finally a list must be freed calling the function:
 ```c
 free_list(list_name);
 ```
+
+## Example files
+
+- [list_example.c](https://github.com/remeedev/structs/blob/main/src/examples/list_example.c)

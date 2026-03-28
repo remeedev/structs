@@ -31,3 +31,7 @@ To get an element inside of the dict one must do the following:
 
 After working with the dictionary one must free it using the
 `free_dict(dict)` function, passing in the originally generated dictionary.
+
+## Example files
+
+- [dict_example.c](https://github.com/remeedev/structs/blob/main/src/examples/dict_example.c)

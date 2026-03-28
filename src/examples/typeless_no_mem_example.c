@@ -1,11 +1,14 @@
+// To run this code run from ../../, so from main.
+//      make test typeless_no_mem
+
 // This example uses no trash handling for memory, it is not recommended to do so
 // Nevertheless it is added for other travelers to consider the same as me,
 // it is not worth it to not use the trash disposal
 //
 // Compared to trash disposal usage:
 //
-// typeless_no_mem ->99 allocs and frees (2,378 Bytes total), of course
-// typeless ->2,270 allocs and frees (292,853 Bytes total), clearly one is memory friendly and the other one isn't
+// typeless_no_mem ->104 allocs and frees (2,423 Bytes total), of course
+// typeless ->2,275 allocs and frees (292,898 Bytes total), clearly one is memory friendly and the other one isn't
 
 #include <stdio.h>
 #include <stdlib.h>

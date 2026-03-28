@@ -1,3 +1,6 @@
+// To run this code run from ../../, so from main.
+//      make test pq
+
 // Example for a priority queue
 
 #include <stdlib.h>

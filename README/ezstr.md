@@ -36,3 +36,7 @@ free_string(string);
 ```
 
 To free the string object that was created.
+
+## Example files
+
+- [ezstr_example.c](https://github.com/remeedev/structs/blob/main/src/examples/ezstr_example.c)

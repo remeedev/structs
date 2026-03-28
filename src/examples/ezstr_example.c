@@ -1,3 +1,6 @@
+// To run this code run from ../../, so from main.
+//      make test ezstr 
+
 #include <stdio.h>
 
 #include "../imported/headers/ezstr.h"

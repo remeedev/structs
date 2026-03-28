@@ -1,3 +1,6 @@
+// To run this code run from ../../, so from main.
+//      make test typeless
+
 /*
  * OPENING COMMENTS FOR CODE:
  * This program uses trash disposal also known as
@@ -19,7 +22,6 @@
  * Be careful with you memory
  * - Remee
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -27,7 +29,6 @@
 #include "../imported/headers/hmem.h"
 #include "../imported/headers/array.h"
 #include "../imported/headers/hash-table.h"
-#include "../imported/headers/strs.h"
 
 int main(int argc, char *argv[]){
     start_memory_registering(); // Therefore shows no frees for simple objs
