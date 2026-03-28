@@ -57,3 +57,5 @@ It contains a folder for binaries, a folder for the source, for the files and he
 - `make mem-test`, does compile-debug, then runs through valgrind for memory tests.
 
 - `make wc`, does nothing with the program, just returns the word count of all files not **imported**.
+
+If you would like to change the default commands that come in the `makefile` such can be done by editing the contents of `def-make`.
