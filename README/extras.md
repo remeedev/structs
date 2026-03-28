@@ -43,3 +43,25 @@ void print_bytes(char *byte_name, void *byte_addr, size_t size);
 ```
 
 Converts objects to bytes, and has a function to print bytes given an address and a size, `byte_name` can be `NULL` as it is just a printed name and has no impact on the regular functioning of bytes.c
+
+## Strs
+
+Proy module: **strs**
+
+As defined in `strs.h`:
+
+```c
+int str_len(char *str);
+int str_equal(char *a, char *b);
+int str2int(char *str);
+char *int2str(int num);
+float str2float(char *str);
+char *float2str(float num);
+int is_int(char *);
+int is_float(char *);
+char *dupstr(char *);
+```
+
+Some duplicated functions from `<strings.h>`, generally useful functions for manipulation of strings.
+
+**Be careful!** `str_len(char *)` returns the calculated length of a string, if the object happens to be of type `string` from `ezstr` then you can just do `get_string_size` which consists of one read, complexity of O(1).
