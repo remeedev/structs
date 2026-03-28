@@ -16,7 +16,8 @@ It will compile the file at `./src/examples/<struct_name>_example.c` and run it 
 
 ## READMES
 
-Even though this "main" readme doesn't contain any information on the structures written the [README](https://github.com/remeedev/structs/tree/main/README) folder contains a readme for every structure that contains at least one (1) example in the `examples` folder, these are all structures meant to be added as modules in proy, therefore basic understanding of them is crucial to their usage.
+Even though this "main" readme doesn't contain any information on the structures written, the [README](https://github.com/remeedev/structs/tree/main/README) folder contains a readme for every structure that contains at least one (1) example in the
+[examples](https://github.com/remeedev/structs/tree/main/src/examples) folder, these are all structures meant to be added as modules in proy, therefore basic understanding of them is crucial to their usage.
 
 Nevertheless, some structures don't contain any explanation whatsoever for their existence, that is because those files have been used as dependencies for main structures and their functions could be deemed somewhat "useless". However, since they are added as modules inside `proy` you can check out [./README/extras.md](https://github.com/remeedev/structs/blob/main/README/extras.md) to check out the basic explanation of each module that doesn't have its own file.
 

@@ -8,7 +8,7 @@ It's just a linked list.
 
 ## Usage
 
-After importing `list.h` into your code you can:
+**Remember to** include `list.h` for **all** functions mentioned in this file.
 
 To create a brand new list you must run the following function:
 
