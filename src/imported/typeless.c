@@ -247,6 +247,9 @@ char *get_raw_dict(obj dict_obj){
     array elems = get_key_values(d);
     int len = 2; // Opening and closing bracket
     for (int i = 0; i < get_array_size(elems); i++){
+        if (str_len(get_key(elems[i])) == 0){
+            continue;
+        }
         len += str_len(get_key(elems[i])) + 3; // "%s":
         char *tmp = get_plain_obj(get_value(elems[i]));
         len += str_len(tmp); // obj

@@ -1,8 +1,8 @@
 #include <stdio.h>
 
-#define RED "\033m[31m"
+#define RED "\033[31m"
 
-#define END "\033m[0m"
+#define END "\033[0m"
 
 void mem_alloc_error(int bytes, char *name){
     char a = name[0];

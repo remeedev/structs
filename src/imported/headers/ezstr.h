@@ -1,3 +1,5 @@
+#include "strs.h"
+
 #ifndef easy_string
 #define easy_string
 

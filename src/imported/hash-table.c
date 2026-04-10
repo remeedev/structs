@@ -81,8 +81,11 @@ void free_after_expand(dict d){
     for (int i = 0; i < get_array_size(kv_pairs); i++){
         hfree(get_key(kv_pairs[i]));
         hfree(kv_pairs[i]);
+        kv_pairs[i] = NULL;
     }
     free_array(kv_pairs);
+    for (int i = 0; i < get_array_size(get_dict_array(d)); i++) get_dict_array(d)[i] = NULL;
+    free_array(get_dict_array(d));
     hfree(d);
 }
 
@@ -125,6 +128,7 @@ capacity_check:
         array kv_pairs = get_key_values(*d);
         for (int i = 0; i < get_array_size(kv_pairs); i++){
             dict_add_pointer(&tmp_dict, get_key(kv_pairs[i]), get_value(kv_pairs[i]));
+            kv_pairs[i] = NULL;
         }
         free_array(kv_pairs);
         free_after_expand(*d);

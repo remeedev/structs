@@ -3,6 +3,7 @@
 #include "headers/hmem.h"
 
 #include <stdio.h>
+#include <unistd.h>
 
 void print_file_not_found(char *file_name){
     printf("There has been an error opening the file '%s'\n", file_name);
@@ -79,4 +80,11 @@ int is_file_bytes(char *file_name){
     }
     hfree(file_content);
     return 0;
+}
+
+int file_exists(char *file_name){
+    if (access(file_name, F_OK) != 0){
+        return 0;
+    }
+    return 1;
 }
