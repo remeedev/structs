@@ -452,23 +452,34 @@ int try_read_obj_char(string *out, char *str, int *pos, char a){
     if (str[*pos] == a){
         concat_char_to_str(out, a);
         char b;
+        char deepen = 0;
         switch(a){
             case '"': ;
                 b = a;
                 break;
             case '[': ;
                 b = ']';
+                deepen = '[';
                 break;
             case '{': ;
                 b = '}';
+                deepen = '{';
                 break;
             default:
                 b = '\0';
         }
         (*pos)++;
+        int depth = 0;
         while (str[*pos] != '\0' && str[*pos] != b){
+            if (str[*pos] == deepen) depth++;
             concat_char_to_str(out, str[*pos]);
             (*pos)++;
+            if (str[*pos] == b){
+                if (depth == 0) break;
+                if (depth > 0) depth--;
+                concat_char_to_str(out, str[*pos]);
+                (*pos)++;
+            }
         }
         concat_char_to_str(out, b);
         (*pos)++;
@@ -515,13 +526,13 @@ obj read_to_obj(char *str){
         obj out = create_empty_array_obj();
         array *addr = obj_get_array_addr(out);
         array arr = *addr;
-        while (str[pos] != '\0' && str[pos] != ']'){
+        while (pos < strlen && str[pos] != '\0' && str[pos] != ']'){
             string tmp_obj = read_next_obj(str, &pos);
             if (tmp_obj) {
                 array_append_pointer(addr, read_to_obj(tmp_obj));
                 free_string(tmp_obj);
             }
-            pos = get_to_next_obj(str, pos);
+            if (pos < strlen) pos = get_to_next_obj(str, pos);
         }
         return out;
     }else if (str[pos] == '{'){
@@ -530,7 +541,7 @@ obj read_to_obj(char *str){
         obj out = create_empty_dict_obj();
         dict *addr = obj_get_dict_addr(out);
         dict d = *addr;
-        while (str[pos] != '\0' && str[pos] != '}'){
+        while (pos < strlen && str[pos] != '\0' && str[pos] != '}'){
             // Read key
             string key_obj = read_next_obj(str, &pos);
             pos = get_to_next_obj(str, pos);
@@ -543,7 +554,7 @@ obj read_to_obj(char *str){
             hfree(raw_key);
             free_string(key_obj);
             free_string(value_obj);
-            pos = get_to_next_obj(str, pos);
+            if (pos < strlen) pos = get_to_next_obj(str, pos);
         }
         return out;
     }else{

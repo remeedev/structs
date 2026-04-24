@@ -3,7 +3,15 @@
 #ifndef typeless
 #define typeless
 
+#define STRING_TYPE 1
+#define INT_TYPE 2
+#define DOUBLE_TYPE 3
+#define LIST_TYPE 4
+#define DICT_TYPE 5
+
 #define obj void *
+
+char get_type(obj object);
 
 char *get_raw_obj(obj object);
 char *get_plain_obj(obj object);
