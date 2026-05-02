@@ -73,7 +73,7 @@ int is_file_bytes(char *file_name){
     size_t size;
     unsigned char *file_content = read_file_bytes(file_name, &size);
     for (int i = 0; i < size; i++){
-        if ((file_content[i] < 32 || file_content[i] > 127) && file_content[i] != '\n'){
+        if ((file_content[i] < 32) && file_content[i] != '\n'){
             hfree(file_content);
             return 1;
         }
