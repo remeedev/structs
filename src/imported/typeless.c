@@ -11,7 +11,7 @@
 
 // Objs will be stored like: type, content
 
-#define obj void *
+typedef void * obj;
 
 #define STRING_TYPE 1
 #define INT_TYPE 2
@@ -20,6 +20,8 @@
 #define DICT_TYPE 5
 #define LIST_TERMINATOR 6
 #define DICT_TERMINATOR 7
+#define BOOL_TYPE 8
+#define BLOB_TYPE 9
 
 void free_obj(obj);
 
@@ -62,6 +64,11 @@ char *get_raw_obj(obj object){
         case DICT_TYPE: ;
             return get_raw_dict(object);
             break;
+        case BOOL_TYPE: ;
+            return **(int **)object ? dupstr("true") : dupstr("false");
+        case BLOB_TYPE: ;
+            print_error("Tried to convert bytes to characters, bytes is not characters.");
+            return dupstr("\"obj\"");
         default: ;
             print_error("Tried to read object of unknown type!");
             break;
@@ -89,6 +96,10 @@ char *get_plain_obj(obj object){
         case DICT_TYPE: ;
             return get_raw_obj(object);
             break;
+        case BOOL_TYPE: ;
+            return get_raw_obj(object);
+        case BLOB_TYPE: ;
+            return get_raw_obj(object);
         default: ;
             print_error("Tried to read object of unknown type!");
             break;
@@ -153,6 +164,37 @@ unsigned char *get_byte_obj(obj object, size_t* size){
             hfree(tmp);
             return out;
             break;
+        case BOOL_TYPE: ;
+            *size = 2*sizeof(char);
+            out = hmalloc(*size);
+            if (out == NULL){
+                mem_alloc_error(*size, "Boolean byte obj");
+                *size = -1;
+                return NULL;
+            }
+            out[0] = BOOL_TYPE;
+            out[1] = **(int**)object ? 1 : 0;
+            return out;
+        case BLOB_TYPE: ;
+            byte_seq* blob_obj = *(byte_seq**)object;
+            *size = sizeof(char) + sizeof(int) + sizeof(unsigned char)*byte_seq_size(blob_obj);
+            out = hmalloc(*size);
+            if (out == NULL){
+                mem_alloc_error(*size, "Blob byte obj");
+                *size = -1;
+                return NULL;
+            }
+            out[0] = BLOB_TYPE;
+            tmp = int2bytes(byte_seq_size(blob_obj));
+            for (int i = 0; i < sizeof(int); i++){
+                out[1 + i] = tmp[i];
+            }
+            hfree(tmp);
+            int curr_pos = 1 + sizeof(int);
+            for (int i = 0; i < byte_seq_size(blob_obj); i++){
+                out[curr_pos++] = (*(unsigned char **)blob_obj)[i];
+            }
+            return out;
         case DICT_TYPE: ;
             return get_bytes_dict(object, size);
             break;
@@ -183,6 +225,24 @@ obj create_int_obj(int content){
 obj create_decimal_obj(double content){
     obj out = create_empty_object(DOUBLE_TYPE);
     set_object_content(out, double_to_ptr(content));
+    return out;
+}
+
+obj create_bool_obj(int val){
+    obj out = create_empty_object(BOOL_TYPE);
+    set_object_content(out, int_to_ptr(val ? 1 : 0));
+    return out;
+}
+
+byte_seq *obj_get_byte_seq_addr(obj byte_seq_obj){
+    return *(byte_seq **)byte_seq_obj;
+}
+
+obj create_byte_seq_obj(unsigned char *bytes, int byte_size){
+    obj out = create_empty_object(BLOB_TYPE);
+    set_object_content(out, create_empty_byte_sequence());
+    byte_seq *inner = obj_get_byte_seq_addr(out);
+    concat_to_byte_seq(inner, bytes, byte_size);
     return out;
 }
 
@@ -434,6 +494,12 @@ void free_obj(obj object){
         case LIST_TYPE: ;
             free_array_obj(object);
             return;
+        case BOOL_TYPE: ;
+            free_simple_obj(object);
+            return;
+        case BLOB_TYPE: ;
+            free_byte_seq(*(byte_seq **)object);
+            hfree((char*)object - 1);
     }
 }
 
@@ -500,7 +566,16 @@ string read_next_obj(char *str, int* pos){
         concat_char_to_str(&out, str[*pos]);
         (*pos)++;
     }
-
+    if (str_starts_with(&str[*pos], "true") || str_starts_with(&str[*pos], "false")){
+        int val = str_starts_with(&str[*pos], "true");
+        if (val){
+            concat_to_str(&out, "true");
+            *pos += str_len("true");
+        }else{
+            concat_to_str(&out, "false");
+            *pos += str_len("false");
+        }
+    }
     if (get_string_size(out) == 0){
         free_string(out);
         return NULL;
@@ -557,12 +632,32 @@ obj read_to_obj(char *str){
             if (pos < strlen) pos = get_to_next_obj(str, pos);
         }
         return out;
+    }else if (str_starts_with(&str[pos], "true") || str_starts_with(&str[pos], "false")){
+        int val = str_starts_with(&str[pos], "true");
+        pos++;
+        pos = get_to_next_obj(str, pos);
+        obj out = create_bool_obj(val);
+        return out;
     }else{
         string full_obj = read_next_obj(str, &pos);
         obj out = NULL;
         if (is_int(full_obj)){
-            out = create_int_obj(str2int(full_obj));
+            int verify = str2int(full_obj);
+            char *v_text = int2str(verify);
+            if (!str_equal(v_text, full_obj)){
+                hfree(v_text);
+                return create_string_obj(full_obj);
+            }
+            hfree(v_text);
+            out = create_int_obj(verify);
         }else if (is_float(full_obj)){
+            double verify = str2float(full_obj);
+            char *v_text = float2str(verify);
+            if (!str_equal(v_text, full_obj)){
+                hfree(v_text);
+                return create_string_obj(full_obj);
+            }
+            hfree(v_text);
             out = create_decimal_obj(str2float(full_obj));
         }
         free_string(full_obj);

@@ -1,8 +1,8 @@
 #ifndef lists
 #define lists
 
-#define list void *
-#define node void **
+typedef void * list;
+typedef void ** node;
 
 list create_list();
 int get_list_size(list l);

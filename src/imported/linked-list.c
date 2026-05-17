@@ -3,8 +3,8 @@
 #include "headers/messages.h"
 #include "headers/handled_mem.h"
 
-#define node void **
-#define list void *
+typedef void ** node;
+typedef void * list;
 
 list create_list(){
     void *out = (void *)malloc(sizeof(int) + 2*sizeof(node *));

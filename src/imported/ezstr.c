@@ -2,7 +2,7 @@
 #include "headers/messages.h"
 #include "headers/strs.h"
 
-#define string char *
+typedef char * string;
 
 string create_empty_string(){
     void *out = hmalloc(sizeof(int) + 1);

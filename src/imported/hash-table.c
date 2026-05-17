@@ -10,8 +10,8 @@
 #define PRIME 333667
 #define A 0.55
 
-#define dict void *
-#define hash_elem void *
+typedef void * dict;
+typedef void * hash_elem;
 
 dict create_dict(int capacity){
     void *out = (void *)hmalloc(2*sizeof(int) + sizeof(array *));

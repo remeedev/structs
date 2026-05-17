@@ -3,7 +3,7 @@
 #include "headers/handled_mem.h"
 #include "headers/messages.h"
 
-#define pq void **
+typedef void ** pq;
 
 pq create_pq(int max_heap){
     pq out = (pq)malloc(sizeof(int) + sizeof(array *));

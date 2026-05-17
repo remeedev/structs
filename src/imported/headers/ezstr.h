@@ -3,7 +3,7 @@
 #ifndef easy_string
 #define easy_string
 
-#define string char *
+typedef char * string;
 
 string create_empty_string();
 int get_string_size(string str);

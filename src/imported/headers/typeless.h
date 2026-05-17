@@ -9,7 +9,8 @@
 #define LIST_TYPE 4
 #define DICT_TYPE 5
 
-#define obj void *
+typedef void * obj;
+typedef unsigned char * byte_seq;
 
 char get_type(obj object);
 
@@ -22,8 +23,12 @@ void set_object_content(obj, void *);
 obj create_string_obj(char *content);
 obj create_int_obj(int content);
 obj create_decimal_obj(double content);
+obj create_byte_seq_obj(unsigned char *bytes, int byte_size);
 obj create_empty_array_obj();
 obj create_empty_dict_obj();
+obj create_bool_obj(int val);
+
+byte_seq *obj_get_byte_seq_addr(obj byte_seq_obj);
 
 void * get_dict_from_obj(obj);
 void *obj_get_dict_addr(obj);

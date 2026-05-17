@@ -1,8 +1,8 @@
 #ifndef hash_table
 #define hash_table
 
-#define dict void *
-#define hash_elem void *
+typedef void * dict;
+typedef void * hash_elem;
 
 dict create_dict(int capacity);
 void free_dict(dict d);

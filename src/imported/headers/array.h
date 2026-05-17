@@ -1,7 +1,7 @@
 #ifndef arrays
 #define arrays
 
-#define array void **
+typedef void ** array;
 
 array create_array();
 

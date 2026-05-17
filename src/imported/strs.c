@@ -1,5 +1,4 @@
 #include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include "headers/messages.h"
 #include "headers/hmem.h"
@@ -18,6 +17,13 @@ int str_equal(char *a, char *b){
         if (a[i] != b[i]) return 0;
     }
     return 1;
+}
+
+int str_starts_with(char *a, char *b){
+    int i = 0;
+    while (a[i] != 0 && b[i] != 0 && b[i] == a[i]) i++;
+    if (b[i] == 0) return 1;
+    return 0;
 }
 
 char *dupstr(char *a){
