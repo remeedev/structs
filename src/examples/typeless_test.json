@@ -6,5 +6,7 @@
     "Key4": {
         "Doctor":"doctor",
         "Wao":"Wou"
-    }
+    },
+    "Multi-line": """Hello!,
+    This is a test string!"""
 }

@@ -28,6 +28,8 @@ obj create_empty_array_obj();
 obj create_empty_dict_obj();
 obj create_bool_obj(int val);
 
+obj obj_index(obj elem, char *index);
+
 byte_seq *obj_get_byte_seq_addr(obj byte_seq_obj);
 
 void * get_dict_from_obj(obj);
@@ -50,5 +52,9 @@ obj read_from_bytes_file(char *file_name);
 obj read_from_file(char *file_name);
 
 void write_obj_to_file(int as_bytes, obj elem, char *file_name);
+
+void print_object_plain(obj object);
+void print_object_raw(obj object);
+void print_object_bytes(obj object);
 
 #endif

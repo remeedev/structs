@@ -48,6 +48,14 @@ int main (int argc, char *argv[]){
     printf("%s\n", unparsed_read);
     hfree(unparsed_read);
 
+    // Showcase of things I've added since, in only one line
+    char *stripped = strip_multiline_str(*(string *)obj_index(example_read, ".Multi-line"));
+    printf("Stripped:\n%s\nEND\n", stripped);
+    hfree(stripped);
+    print_object_plain(obj_index(example_read, ".Multi-line"));
+    print_object_raw(obj_index(example_read, ".Multi-line"));
+    print_object_bytes(obj_index(example_read, ".Multi-line"));
+
     free_obj(example_read);
 
     unsigned char tmp[] = {1, 'H', 'e', 'l', 'l', 'o', ' ', 'e', 'l', 'f', 's', 'z', '\0'};

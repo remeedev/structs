@@ -16,4 +16,6 @@ unsigned char *float2bytes(int);
 void print_bytes(char *byte_name, void *byte_addr, size_t size);
 void print_byte_seq(char *byte_name, byte_seq* seq);
 
+int is_bytes(unsigned char *bytes, size_t byte_size);
+
 #endif

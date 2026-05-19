@@ -10,5 +10,6 @@ int get_string_size(string str);
 void concat_to_str(string *str, char *text);
 void concat_char_to_str(string *str, char a);
 void free_string(string str);
+char *strip_multiline_str(char *str);
 
 #endif

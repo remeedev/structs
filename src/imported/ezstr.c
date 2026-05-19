@@ -39,3 +39,18 @@ void concat_char_to_str(string *str, char a){
 void free_string(string str){
     hfree((int *)str - 1);
 }
+
+char *strip_multiline_str(char *str){
+    int i = 0;
+    int just_read_line = 0;
+    string tmp_out = create_empty_string();
+    while (str[i] != 0){
+        if (just_read_line && !(str[i] == ' ' || str[i] == '\n' || str[i] == '\t')) just_read_line = 0;
+        if (!just_read_line) concat_char_to_str(&tmp_out, str[i]);
+        if (str[i] == '\n') just_read_line = 1;
+        i++;
+    }
+    char *out = dupstr(tmp_out);
+    free_string(tmp_out);
+    return out;
+}

@@ -46,6 +46,25 @@ char get_type(obj object){
     return *((char *)object - 1);
 }
 
+char *json_safe_string(char *text){
+    string tmp_out = create_empty_string();
+    int multi_line = str_contains(text, "\n");
+    if (multi_line){
+        concat_to_str(&tmp_out, "\"\"\"");
+    }else {
+        concat_to_str(&tmp_out, "\"");
+    }
+    concat_to_str(&tmp_out, text);
+    if (multi_line){
+        concat_to_str(&tmp_out, "\"\"\"");
+    }else {
+        concat_to_str(&tmp_out, "\"");
+    }
+    char *out = dupstr(tmp_out);
+    free_string(tmp_out);
+    return out;
+}
+
 char *get_raw_obj(obj object){
     if (object == NULL) return "";
     switch(get_type(object)){
@@ -67,8 +86,20 @@ char *get_raw_obj(obj object){
         case BOOL_TYPE: ;
             return **(int **)object ? dupstr("true") : dupstr("false");
         case BLOB_TYPE: ;
-            print_error("Tried to convert bytes to characters, bytes is not characters.");
-            return dupstr("\"obj\"");
+            byte_seq *bs = *(byte_seq**)object;
+            if (is_bytes(*(unsigned char **)bs, byte_seq_size(bs))){
+                print_error("Tried to convert bytes to characters, bytes is not characters.");
+                return dupstr("\"obj\"");
+            }else{
+                byte_seq* cpy = create_empty_byte_sequence();
+                concat_to_byte_seq(cpy, *(unsigned char**)bs, byte_seq_size(bs));
+                concat_char_to_byte_seq(cpy, 0);
+                char *content = dupstr((char *)*(unsigned char **)cpy);
+                free_byte_seq(cpy);
+                char *out = json_safe_string(content);
+                hfree(content);
+                return out;
+            }
         default: ;
             print_error("Tried to read object of unknown type!");
             break;
@@ -80,10 +111,11 @@ char *get_plain_obj(obj object){
     if (object == NULL) return ""; // I thought raw and plain would differ, I thought wrong
     switch(get_type(object)){
         case STRING_TYPE: ;
-            char *out = (char *)hmalloc(str_len(*(char **)object) + 3);
-            sprintf(out, "\"%s\"", *(char **)object);
+            if (is_int(*(char **)object)){
+                return dupstr(*(char **)object);
+            }
+            char *out = json_safe_string(*(char **)object);
             return out;
-            break;
         case INT_TYPE: ;
             return get_raw_obj(object);
             break;
@@ -546,6 +578,7 @@ int try_read_obj_char(string *out, char *str, int *pos, char a){
                 concat_char_to_str(out, str[*pos]);
                 (*pos)++;
             }
+            if (str[*pos] == '\n' && b == '"'){} // I dunno I could just ignore it.
         }
         concat_char_to_str(out, b);
         (*pos)++;
@@ -557,6 +590,17 @@ int try_read_obj_char(string *out, char *str, int *pos, char a){
 string read_next_obj(char *str, int* pos){
     string out = create_empty_string();
 
+    int is_multiline_str = str_starts_with(&str[*pos], "\"\"\"");
+    if (is_multiline_str){
+        (*pos) += 3;
+        concat_to_str(&out, "\"\"\"");
+        while (!str_starts_with(&str[*pos], "\"\"\"")){
+            concat_char_to_str(&out, str[(*pos)++]);
+        }
+        (*pos) += 3;
+        concat_to_str(&out, "\"\"\"");
+        return out;
+    }
     if (try_read_obj_char(&out, str, pos, '"') ||\
             try_read_obj_char(&out, str, pos, '[') ||\
             try_read_obj_char(&out, str, pos, '{')){
@@ -590,11 +634,19 @@ obj read_to_obj(char *str){
     int pos = get_to_next_obj(str, 0);
 
     if (str[pos] == '"'){
+        int multi_line = str_starts_with(&str[pos], "\"\"\"");
         string read_obj = read_next_obj(str, &pos);
-        read_obj[get_string_size(read_obj) - 1] = '\0';
-        obj out = create_string_obj(read_obj + 1);
-        free_string(read_obj);
-        return out;
+        if (multi_line){
+            read_obj[get_string_size(read_obj) - 3] = '\0';
+            obj out = create_string_obj(read_obj + 3);
+            free_string(read_obj);
+            return out;
+        }else {
+            read_obj[get_string_size(read_obj) - 1] = '\0';
+            obj out = create_string_obj(read_obj + 1);
+            free_string(read_obj);
+            return out;
+        }
     }else if (str[pos] == '['){
         pos++;
         pos = get_to_next_obj(str, pos);
@@ -646,7 +698,9 @@ obj read_to_obj(char *str){
             char *v_text = int2str(verify);
             if (!str_equal(v_text, full_obj)){
                 hfree(v_text);
-                return create_string_obj(full_obj);
+                obj out = create_string_obj(full_obj);
+                free_string(full_obj);
+                return out;
             }
             hfree(v_text);
             out = create_int_obj(verify);
@@ -655,7 +709,9 @@ obj read_to_obj(char *str){
             char *v_text = float2str(verify);
             if (!str_equal(v_text, full_obj)){
                 hfree(v_text);
-                return create_string_obj(full_obj);
+                obj out = create_string_obj(full_obj);
+                free_string(full_obj);
+                return out;
             }
             hfree(v_text);
             out = create_decimal_obj(str2float(full_obj));
@@ -736,6 +792,57 @@ obj read_from_file(char *file_name){
     }
 }
 
+obj obj_index(obj elem, char *index){
+    if (index == NULL || index[0] == 0 || !elem) return elem;
+    if (get_type(elem) == STRING_TYPE || get_type(elem) == INT_TYPE || get_type(elem) == BOOL_TYPE || get_type(elem) == BLOB_TYPE){
+        print_error("Tried to index non indexable type!");
+        return NULL;
+    }
+    if (index[0] == '['){
+        if (get_type(elem) != LIST_TYPE){
+            print_error("Tried to list index a not list object!");
+            return NULL;
+        }
+        string index_txt = create_empty_string();
+        int i = 1;
+        while (index[i] != ']' && index[i] != 0) concat_char_to_str(&index_txt, index[i++]);
+        if (index[i] == 0){
+            print_error("Badly formatted indexing!");
+            free_string(index_txt);
+            return NULL;
+        }
+        if (!is_int(index_txt)){
+            print_error("Found invalid index!");
+            free_string(index_txt);
+            return NULL;
+        }
+        int index_ = str2int(index_txt);
+        free_string(index_txt);
+        array *arr_addr = obj_get_array_addr(elem);
+        if (index_ < 0) index_ += get_array_size(*arr_addr);
+        if (index_ < 0 || index_ > get_array_size(*arr_addr)){
+            print_error("Index out of bounds!");
+            printf("Index: %d\n", index_);
+            return NULL;
+        }
+        obj indexed = (*arr_addr)[index_];
+        return obj_index(indexed, &index[i + 1]);
+    }else if (index[0] == '.'){
+        if (get_type(elem) != DICT_TYPE){
+            print_error("Tried to index key in object of wrong type!");
+            return NULL;
+        }
+        int i = 1;
+        string index_str = create_empty_string();
+        while (index[i] != '[' && index[i] != '.' && index[i] != 0) concat_char_to_str(&index_str, index[i++]);
+        dict *d_addr = obj_get_dict_addr(elem);
+        obj indexed = dict_get(*d_addr, index_str);
+        free_string(index_str);
+        return obj_index(indexed, &index[i]);
+    }
+    return NULL;
+}
+
 void write_obj_to_file(int as_bytes, obj elem, char *file_name){
     if (as_bytes){
         size_t size;
@@ -746,5 +853,36 @@ void write_obj_to_file(int as_bytes, obj elem, char *file_name){
         char *raw = get_plain_obj(elem);
         write_to_file(file_name, raw);
         hfree(raw);
+    }
+}
+
+void print_object_plain(obj object){
+    char *plain_obj = get_plain_obj(object);
+    if (plain_obj){
+        printf("%s\n", plain_obj);
+        hfree(plain_obj);
+    }else{
+        print_error("There was an error converting object to plain!");
+    }
+}
+
+void print_object_raw(obj object) {
+    char *raw_obj = get_raw_obj(object);
+    if (raw_obj) {
+        printf("%s\n", raw_obj);
+        hfree(raw_obj);
+    } else {
+        print_error("There was an error converting object to raw!");
+    }
+}
+
+void print_object_bytes(obj object) {
+    size_t size;
+    unsigned char *bytes = get_byte_obj(object, &size);
+    if (size > 0){
+        print_bytes(NULL, bytes, size);
+        hfree(bytes);
+    }else{
+        print_error("There was an error converting object to bytes!");
     }
 }

@@ -26,6 +26,12 @@ int str_starts_with(char *a, char *b){
     return 0;
 }
 
+int str_contains(char *a, char *contains){
+    int i = 0;
+    while (a[i] != 0) if (str_starts_with(&a[i++], contains)) return 1;
+    return 0;
+}
+
 char *dupstr(char *a){
     int s = str_len(a);
     char *out = (char *)hmalloc(s + 1);

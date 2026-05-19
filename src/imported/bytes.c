@@ -104,3 +104,12 @@ void print_bytes(char *byte_name, void *byte_addr, size_t size){
 void print_byte_seq(char *byte_name, byte_seq* seq){
     print_bytes(byte_name, *seq, byte_seq_size(seq));
 }
+
+int is_bytes(unsigned char *bytes, size_t byte_size){
+    for (int i = 0; i < byte_size; i++){
+        if (bytes[i] < 32 && bytes[i] != '\n'){
+            return 1;
+        }
+    }
+    return 0;
+}
